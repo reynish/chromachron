@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, type MouseEvent } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { validateDate } from "@/ai/flows/date-validator-flow";
 
 type ColorDatePickerProps = {
   hexColor: string;
@@ -13,6 +14,8 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [currentYearDigits, setCurrentYearDigits] = useState<number>(0);
+  const [aiReason, setAiReason] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const { toast } = useToast();
 
@@ -39,7 +42,6 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
         const tx = x / width;
         const ty = y / height;
 
-        // Bilinear interpolation for each color channel
         const rTop = topLeft.r * (1 - tx) + topRight.r * tx;
         const rBottom = bottomLeft.r * (1 - tx) + bottomRight.r * tx;
         const r = rTop * (1 - ty) + rBottom * ty;
@@ -58,8 +60,8 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
     }
   }, []);
 
-  const handleCanvasClick = (event: MouseEvent<HTMLCanvasElement>) => {
-    if (currentYearDigits === 0) return; // a small guard to ensure client is ready
+  const handleCanvasClick = async (event: MouseEvent<HTMLCanvasElement>) => {
+    if (currentYearDigits === 0) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -73,15 +75,12 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
     const pixelData = ctx.getImageData(x, y, 1, 1).data;
     const [r, g, b] = pixelData;
     
-    // Red: 0-99 for year
-    const yy = Math.round((r / 255) * 99);
-    // Green: 1-12 for month
-    const mm = Math.round((g / 255) * 11) + 1;
-    // Blue: 1-31 for day
-    const dd = Math.round((b / 255) * 30) + 1;
-    
     const toHex = (c: number) => `0${c.toString(16)}`.slice(-2);
     const clickedHex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+    
+    const yy = Math.round((r / 255) * 99);
+    const mm = Math.round((g / 255) * 11) + 1;
+    const dd = Math.round((b / 255) * 30) + 1;
 
     if (mm < 1 || mm > 12) {
       toast({
@@ -107,6 +106,22 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
     const newDate = new Date(fullYear, mm - 1, dd);
     setSelectedDate(newDate);
     setHexColor(clickedHex);
+    
+    setIsLoading(true);
+    setAiReason("");
+    try {
+      const result = await validateDate({ date: newDate.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }) });
+      setAiReason(result.reason);
+    } catch (error) {
+      console.error("AI validation error:", error);
+      setAiReason("Could not get a reason from our AI historian.");
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   const formattedDate = selectedDate
@@ -127,7 +142,7 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
         <canvas
           ref={canvasRef}
           width="500"
-          height="150"
+          height="500"
           className="w-full h-auto aspect-[10/3] rounded-md cursor-pointer border"
           onClick={handleCanvasClick}
           aria-label="Color gradient for date selection"
@@ -135,16 +150,21 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
 
         <div className="text-center mt-6 min-h-[80px]">
           {hexColor ? (
-            <div key={hexColor} className="animate-in fade-in-50 duration-500 flex justify-around items-start">
-              <div className="space-y-2">
-                <div className="flex items-center justify-center gap-4">
-                  <p className="text-lg font-bold text-white bg-primary/90 rounded-lg p-3" style={{ backgroundColor: hexColor }}>
+            <div key={hexColor} className="animate-in fade-in-50 duration-500 flex flex-col justify-around items-center gap-4">
+              <div className="flex items-center justify-center gap-4">
+                  <p className="text-lg text-white font-bold bg-primary/90 rounded-lg p-3" style={{ backgroundColor: hexColor }}>
                     {formattedDate}
                   </p>
-                  <p className="text-lg font-mono tracking-widest font-bold" style={{ color: hexColor ? 'white' : 'hsl(var(--foreground))' }}>
+                  <p className="text-lg text-black font-mono tracking-widest font-bold">
                     {hexColor}
                   </p>
-                </div>
+              </div>
+              <div className="text-sm text-muted-foreground italic w-full max-w-sm min-h-[40px]">
+                {isLoading ? (
+                  <p>Our AI historian is thinking...</p>
+                ) : (
+                  aiReason && <p>"{aiReason}"</p>
+                )}
               </div>
             </div>
           ) : (
