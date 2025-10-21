@@ -39,10 +39,10 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
 
     const { width, height } = canvas;
 
-    const topLeft = { r: 0, g: 1, b: 1 }; // Corresponds to #000101
-    const topRight = { r: 153, g: 18, b: 49 }; // Corresponds to #991231
-    const bottomLeft = { r: 80, g: 80, b: 80 }; // An arbitrary mid-grey
-    const bottomRight = { r: 200, g: 200, b: 255 }; // A light blueish color
+    const topLeft = { r: 0, g: 0, b: 0 }; 
+    const topRight = { r: 255, g: 0, b: 0 };
+    const bottomLeft = { r: 0, g: 255, b: 0 };
+    const bottomRight = { r: 0, g: 0, b: 255 };
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
@@ -112,18 +112,28 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
     const generatedHex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
     
     // Now derive the date parts from the exact color values
-    const yy = Math.floor((r / 255) * 99);
-    const mm = Math.floor((g / 255) * 11) + 1; // 0-11 -> 1-12
+    const yy = Math.round((r / 255) * 99);
+    const mm = Math.round((g / 255) * 11) + 1;
     const fullYear = yy <= currentYearDigits ? 2000 + yy : 1900 + yy;
-    const daysInMonth = new Date(fullYear, mm, 0).getDate();
-    const dd = Math.floor((b / 255) * (daysInMonth -1)) + 1;
-
+    
     // a quick guard against invalid dates.
-    if (mm > 12 || dd > daysInMonth) {
+    if (mm < 1 || mm > 12) {
+       toast({
+        variant: "destructive",
+        title: "Invalid Date",
+        description: "The selected color maps to an invalid month.",
+      });
+      return;
+    }
+
+    const daysInMonth = new Date(fullYear, mm, 0).getDate();
+    const dd = Math.round((b / 255) * (daysInMonth - 1)) + 1;
+
+    if (dd < 1 || dd > daysInMonth) {
       toast({
         variant: "destructive",
         title: "Invalid Date",
-        description: "The selected color maps to an invalid date.",
+        description: "The selected color maps to an invalid day.",
       });
       return;
     }
