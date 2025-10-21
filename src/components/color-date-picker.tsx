@@ -138,10 +138,10 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
             <div key={hexColor} className="animate-in fade-in-50 duration-500 flex justify-around items-start">
               <div className="space-y-2">
                 <div className="flex items-center justify-center gap-4">
-                  <p className="text-lg font-bold text-primary-foreground bg-primary/90 rounded-lg p-3" style={{ backgroundColor: hexColor }}>
+                  <p className="text-lg font-bold text-white bg-primary/90 rounded-lg p-3" style={{ backgroundColor: hexColor }}>
                     {formattedDate}
                   </p>
-                  <p className="text-lg font-mono tracking-widest font-bold text-foreground">
+                  <p className="text-lg font-mono tracking-widest font-bold" style={{ color: hexColor ? 'white' : 'hsl(var(--foreground))' }}>
                     {hexColor}
                   </p>
                 </div>
