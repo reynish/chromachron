@@ -35,9 +35,9 @@ const prompt = ai.definePrompt({
   prompt: `You are a helpful code assistant. Given a hex color, explain how it converts to the date '{{{date}}}'.
 
 The hex color is {{{hexColor}}}.
-- The red component '{{hexColor.substring(1,3)}}' converts to the year '{{year}}'.
-- The green component '{{hexColor.substring(3,5)}}' converts to the month '{{month}}'.
-- The blue component '{{hexColor.substring(5,7)}}' converts to the day '{{day}}'.
+- The red component converts to the year '{{year}}'.
+- The green component converts to the month '{{month}}'.
+- The blue component converts to the day '{{day}}'.
 
 Provide a brief, one-sentence, creative explanation for why this is a valid date based on the conversion. Be creative and confirm the date is valid.`,
 });

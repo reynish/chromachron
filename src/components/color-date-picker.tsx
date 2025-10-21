@@ -141,8 +141,6 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
   return (
     <Card className="overflow-hidden shadow-xl">
       <CardHeader>
-        <CardTitle>Color to Date</CardTitle>
-        <CardDescription>Click on the gradient to select a date.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
         <canvas
@@ -157,11 +155,11 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
         <div className="text-center mt-6 min-h-[80px]">
           {hexColor ? (
             <div key={hexColor} className="animate-in fade-in-50 duration-500 flex flex-col justify-around items-center gap-4">
-              <div className="flex items-center justify-center gap-4">
-                  <p className="text-lg text-white font-bold bg-primary/90 rounded-lg p-3" style={{ backgroundColor: hexColor }}>
+              <div className="flex items-center justify-center gap-0" >
+                  <p className="text-lg text-white font-bold p-3" style={{ backgroundColor: hexColor }}>
                     {formattedDate}
                   </p>
-                  <p className="text-lg text-white font-mono tracking-widest font-bold">
+                  <p className="text-lg text-white font-mono tracking-widest font-bold p-3" style={{ backgroundColor: hexColor }}>
                     {hexColor}
                   </p>
               </div>

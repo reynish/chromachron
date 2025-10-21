@@ -16,9 +16,6 @@ export default function Home() {
           <h1 className="text-5xl font-bold tracking-tighter" style={{ color: hexColor ? 'white' : 'hsl(var(--foreground))' }}>
             ChromaChron
           </h1>
-          <p className="mt-2 text-lg" style={{ color: hexColor ? 'white' : 'hsl(var(--muted-foreground))' }}>
-            The worst date picker imaginable.
-          </p>
         </header>
         <ColorDatePicker hexColor={hexColor} setHexColor={setHexColor} />
       </div>
