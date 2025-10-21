@@ -157,29 +157,34 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
           aria-label="Color gradient for date selection"
         />
 
-        <div className="text-center space-y-6 mt-6 min-h-[220px]">
-            {hexColor ? (
-                <div key={hexColor} className="animate-in fade-in-50 duration-500 space-y-4">
-                    <h3 className="text-lg font-medium text-muted-foreground">Your Selected "Color"</h3>
-                    <div className="flex items-center justify-center gap-4">
-                        <div
-                            className="w-12 h-12 rounded-md border-2"
-                            style={{ backgroundColor: hexColor }}
-                        />
-                        <p className="text-2xl font-mono tracking-widest font-bold text-foreground">
-                            {hexColor}
-                        </p>
-                    </div>
-                    <h3 className="text-lg font-medium text-muted-foreground pt-4">Corresponds to the date:</h3>
-                    <p className="text-3xl font-bold text-primary-foreground bg-primary/90 rounded-lg p-3">
-                        {formattedDate}
-                    </p>
+        <div className="text-center mt-6 min-h-[160px]">
+          {hexColor ? (
+            <div key={hexColor} className="animate-in fade-in-50 duration-500 flex justify-around items-start">
+              <div className="space-y-2">
+                <h3 className="text-lg font-medium text-muted-foreground">Your Selected "Color"</h3>
+                <div className="flex items-center justify-center gap-4">
+                  <div
+                    className="w-12 h-12 rounded-md border-2"
+                    style={{ backgroundColor: hexColor }}
+                  />
+                  <p className="text-2xl font-mono tracking-widest font-bold text-foreground">
+                    {hexColor}
+                  </p>
                 </div>
-            ) : (
-                <div className="flex flex-col items-center justify-center h-full pt-8">
-                    <p className="text-muted-foreground">Pick a color from the canvas to generate a date.</p>
-                </div>
-            )}
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-lg font-medium text-muted-foreground">Corresponds to the date:</h3>
+                <p className="text-3xl font-bold text-primary-foreground bg-primary/90 rounded-lg p-3">
+                  {formattedDate}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full pt-8">
+              <p className="text-muted-foreground">Pick a color from the canvas to generate a date.</p>
+            </div>
+          )}
         </div>
       </CardContent>
       <CardFooter className="min-h-[90px] flex items-center justify-center p-6 bg-muted/50">
