@@ -116,7 +116,7 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
     const mm = Math.floor((g / 255) * 11) + 1; // 0-11 -> 1-12
     const fullYear = yy <= currentYearDigits ? 2000 + yy : 1900 + yy;
     const daysInMonth = new Date(fullYear, mm, 0).getDate();
-    const dd = Math.floor((b / 255) * (daysInMonth - 1)) + 1;
+    const dd = Math.floor((b / 255) * (daysInMonth -1)) + 1;
 
     // a quick guard against invalid dates.
     if (mm > 12 || dd > daysInMonth) {
