@@ -12,10 +12,14 @@ type AIResponse = {
   reason?: string;
 };
 
-export default function ColorDatePicker() {
+type ColorDatePickerProps = {
+  hexColor: string;
+  setHexColor: (color: string) => void;
+};
+
+export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePickerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [hexColor, setHexColor] = useState<string>("");
   const [aiResponse, setAiResponse] = useState<AIResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [currentYearDigits, setCurrentYearDigits] = useState<number>(0);
@@ -104,7 +108,7 @@ export default function ColorDatePicker() {
     const pixelData = ctx.getImageData(x, y, 1, 1).data;
     const [r, g, b] = pixelData;
 
-    const yy = Math.floor((r / 255) * 100);
+    const yy = Math.floor((r / 255) * 99);
     const mm = Math.floor((g / 255) * 11) + 1; // 0-11 -> 1-12
 
     const fullYear = yy <= currentYearDigits ? 2000 + yy : 1900 + yy;
