@@ -34,14 +34,9 @@ export default function ColorDatePicker() {
     if (!ctx) return;
 
     const { width, height } = canvas;
-    const gradient = ctx.createLinearGradient(0, 0, width, height);
-    gradient.addColorStop(0, "red");
-    gradient.addColorStop(0.15, "yellow");
-    gradient.addColorStop(0.3, "green");
-    gradient.addColorStop(0.5, "cyan");
-    gradient.addColorStop(0.65, "blue");
-    gradient.addColorStop(0.8, "magenta");
-    gradient.addColorStop(1, "red");
+    const gradient = ctx.createLinearGradient(0, 0, width, 0);
+    gradient.addColorStop(0, "#000101");
+    gradient.addColorStop(1, "#991231");
     
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, height);
@@ -87,13 +82,23 @@ export default function ColorDatePicker() {
     const pixelData = ctx.getImageData(x, y, 1, 1).data;
     const [r, g, b] = pixelData;
 
-    const yy = Math.floor((r / 255) * 100) % 100;
-    const mm = Math.floor((g / 255) * 12) + 1;
+    const yy = Math.floor((r / 255) * 100);
+    const mm = Math.floor((g / 255) * 11) + 1; // 0-11 -> 1-12
 
     const fullYear = yy <= currentYearDigits ? 2000 + yy : 1900 + yy;
 
     const daysInMonth = new Date(fullYear, mm, 0).getDate();
-    const dd = Math.floor((b / 255) * daysInMonth) + 1;
+    const dd = Math.floor((b / 255) * (daysInMonth -1)) + 1;
+
+    // a quick guard against invalid dates.
+    if (mm > 12 || dd > daysInMonth) {
+      toast({
+        variant: "destructive",
+        title: "Invalid Date",
+        description: "The selected color maps to an invalid date.",
+      });
+      return;
+    }
 
     const newDate = new Date(fullYear, mm - 1, dd);
     setSelectedDate(newDate);
