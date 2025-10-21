@@ -111,36 +111,27 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
     const toHex = (c: number) => `0${c.toString(16)}`.slice(-2);
     const generatedHex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
     
-    // Now derive the date parts from the exact color values
+    // Red: 0-99 for year
     const yy = Math.round((r / 255) * 99);
+    // Green: 1-12 for month
     const mm = Math.round((g / 255) * 11) + 1;
-    const fullYear = yy <= currentYearDigits ? 2000 + yy : 1900 + yy;
+    // Blue: 1-31 for day
+    const dd = Math.round((b / 255) * 30) + 1;
     
-    // a quick guard against invalid dates.
-    if (mm < 1 || mm > 12) {
+    const fullYear = yy <= currentYearDigits ? 2000 + yy : 1900 + yy;
+
+    const daysInMonth = new Date(fullYear, mm, 0).getDate();
+    if (dd > daysInMonth) {
        toast({
         variant: "destructive",
         title: "Invalid Date",
-        description: "The selected color maps to an invalid month.",
-      });
-      return;
-    }
-
-    const daysInMonth = new Date(fullYear, mm, 0).getDate();
-    const dd = Math.round((b / 255) * (daysInMonth - 1)) + 1;
-
-    if (dd < 1 || dd > daysInMonth) {
-      toast({
-        variant: "destructive",
-        title: "Invalid Date",
-        description: "The selected color maps to an invalid day.",
+        description: `The selected color maps to an invalid day for the chosen month.`,
       });
       return;
     }
 
     const newDate = new Date(fullYear, mm - 1, dd);
     setSelectedDate(newDate);
-
     setHexColor(generatedHex);
   };
   
