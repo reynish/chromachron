@@ -71,26 +71,26 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
   useEffect(() => {
     if (!hexColor) return;
 
-  //   const runValidation = async () => {
-  //     setIsLoading(true);
-  //     setAiResponse(null);
-  //     try {
-  //       const dateToValidate = hexColor.substring(1);
-  //       const response = await validateDateWithGenAI({ date: dateToValidate });
-  //       setAiResponse(response);
-  //     } catch (error) {
-  //       console.error("AI validation failed:", error);
-  //       toast({
-  //         variant: "destructive",
-  //         title: "Error",
-  //         description: "Could not validate the date. Please try again.",
-  //       });
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
+    const runValidation = async () => {
+      setIsLoading(true);
+      setAiResponse(null);
+      try {
+        const dateToValidate = hexColor.substring(1);
+        const response = await validateDateWithGenAI({ date: dateToValidate });
+        setAiResponse(response);
+      } catch (error) {
+        console.error("AI validation failed:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Could not validate the date. Please try again.",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  //   runValidation();
+    runValidation();
   }, [hexColor, toast]);
 
   const handleCanvasClick = (event: MouseEvent<HTMLCanvasElement>) => {
@@ -107,9 +107,6 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
 
     const pixelData = ctx.getImageData(x, y, 1, 1).data;
     const [r, g, b] = pixelData;
-
-    const toHex = (c: number) => `0${c.toString(16)}`.slice(-2);
-    const generatedHex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
     
     // Red: 0-99 for year
     const yy = Math.round((r / 255) * 99);
@@ -117,6 +114,10 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
     const mm = Math.round((g / 255) * 11) + 1;
     // Blue: 1-31 for day
     const dd = Math.round((b / 255) * 30) + 1;
+
+    const toHex = (c: number) => `0${c.toString(16)}`.slice(-2);
+    // Regenerate hex from clamped values to show the actual date color
+    const generatedHex = `#${toHex(Math.round(yy * 255/99))}${toHex(Math.round((mm - 1) * 255/11))}${toHex(Math.round((dd - 1) * 255/30))}`;
     
     const fullYear = yy <= currentYearDigits ? 2000 + yy : 1900 + yy;
 
@@ -172,6 +173,21 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
                   </p>
 
                 </div>
+                  {isLoading && (
+                    <div className="flex items-center justify-center gap-2 mt-4 text-muted-foreground">
+                      <Loader2 className="animate-spin" />
+                      <span>Validating date...</span>
+                    </div>
+                  )}
+                  {aiResponse && (
+                    <Alert variant={aiResponse.isInPast ? "default" : "destructive"} className="mt-4 animate-in fade-in-50">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>
+                        {aiResponse.isInPast ? "This date is in the past" : "This date is in the future"}
+                      </AlertTitle>
+                      {aiResponse.reason && <AlertDescription>{aiResponse.reason}</AlertDescription>}
+                    </Alert>
+                  )}
               </div>
             </div>
           ) : (
