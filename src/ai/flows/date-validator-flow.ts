@@ -12,11 +12,15 @@ import {z} from 'genkit';
 
 const ValidateDateInputSchema = z.object({
   date: z.string().describe('The date to validate, in a readable format like "January 1, 2024".'),
+  hexColor: z.string().describe('The hex color code that was selected.'),
+  year: z.number().describe('The two-digit year component derived from the red channel.'),
+  month: z.number().describe('The month component derived from the green channel.'),
+  day: z.number().describe('The day component derived from the blue channel.'),
 });
 export type ValidateDateInput = z.infer<typeof ValidateDateInputSchema>;
 
 const ValidateDateOutputSchema = z.object({
-  reason: z.string().describe('A creative and brief explanation of why the provided date is historically or conceptually significant or valid.'),
+  reason: z.string().describe('A creative and brief explanation of why the provided date is conceptually valid based on its hex to number conversion.'),
 });
 export type ValidateDateOutput = z.infer<typeof ValidateDateOutputSchema>;
 
@@ -28,7 +32,14 @@ const prompt = ai.definePrompt({
   name: 'dateValidatorPrompt',
   input: {schema: ValidateDateInputSchema},
   output: {schema: ValidateDateOutputSchema},
-  prompt: `You are a creative historian. Given the date {{{date}}}, provide a brief, one-sentence, creative explanation for why this is a valid or interesting date. It can be a historical fact, an astrological curiosity, or just a quirky observation. Be creative.`,
+  prompt: `You are a helpful code assistant. Given a hex color, explain how it converts to the date '{{{date}}}'.
+
+The hex color is {{{hexColor}}}.
+- The red component '{{hexColor.substring(1,3)}}' converts to the year '{{year}}'.
+- The green component '{{hexColor.substring(3,5)}}' converts to the month '{{month}}'.
+- The blue component '{{hexColor.substring(5,7)}}' converts to the day '{{day}}'.
+
+Provide a brief, one-sentence, creative explanation for why this is a valid date based on the conversion. Be creative and confirm the date is valid.`,
 });
 
 const dateValidatorFlow = ai.defineFlow(

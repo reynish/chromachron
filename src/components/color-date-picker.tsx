@@ -110,11 +110,17 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
     setIsLoading(true);
     setAiReason("");
     try {
-      const result = await validateDate({ date: newDate.toLocaleDateString(undefined, {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      }) });
+      const result = await validateDate({
+        date: newDate.toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }),
+        hexColor: clickedHex,
+        year: yy,
+        month: mm,
+        day: dd,
+      });
       setAiReason(result.reason);
     } catch (error) {
       console.error("AI validation error:", error);
@@ -155,7 +161,7 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
                   <p className="text-lg text-white font-bold bg-primary/90 rounded-lg p-3" style={{ backgroundColor: hexColor }}>
                     {formattedDate}
                   </p>
-                  <p className="text-lg text-black font-mono tracking-widest font-bold">
+                  <p className="text-lg text-white font-mono tracking-widest font-bold">
                     {hexColor}
                   </p>
               </div>
