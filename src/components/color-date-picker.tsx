@@ -34,12 +34,34 @@ export default function ColorDatePicker() {
     if (!ctx) return;
 
     const { width, height } = canvas;
-    const gradient = ctx.createLinearGradient(0, 0, width, 0);
-    gradient.addColorStop(0, "#000101");
-    gradient.addColorStop(1, "#991231");
-    
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
+
+    const topLeft = { r: 0, g: 1, b: 1 }; // Corresponds to #000101
+    const topRight = { r: 153, g: 18, b: 49 }; // Corresponds to #991231
+    const bottomLeft = { r: 80, g: 80, b: 80 }; // An arbitrary mid-grey
+    const bottomRight = { r: 200, g: 200, b: 255 }; // A light blueish color
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const tx = x / width;
+        const ty = y / height;
+
+        // Bilinear interpolation for each color channel
+        const rTop = topLeft.r * (1 - tx) + topRight.r * tx;
+        const rBottom = bottomLeft.r * (1 - tx) + bottomRight.r * tx;
+        const r = rTop * (1 - ty) + rBottom * ty;
+
+        const gTop = topLeft.g * (1 - tx) + topRight.g * tx;
+        const gBottom = bottomLeft.g * (1 - tx) + bottomRight.g * tx;
+        const g = gTop * (1 - ty) + gBottom * ty;
+
+        const bTop = topLeft.b * (1 - tx) + topRight.b * tx;
+        const bBottom = bottomLeft.b * (1 - tx) + bottomRight.b * tx;
+        const b = bTop * (1 - ty) + bBottom * ty;
+
+        ctx.fillStyle = `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`;
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
   }, []);
 
   useEffect(() => {
