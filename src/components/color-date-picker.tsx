@@ -1,16 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect, type MouseEvent } from "react";
-import { validateDateWithGenAI } from "@/ai/flows/validate-date-with-gen-ai";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-type AIResponse = {
-  isInPast: boolean;
-  reason?: string;
-};
 
 type ColorDatePickerProps = {
   hexColor: string;
@@ -20,8 +12,6 @@ type ColorDatePickerProps = {
 export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePickerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [aiResponse, setAiResponse] = useState<AIResponse | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [currentYearDigits, setCurrentYearDigits] = useState<number>(0);
 
   const { toast } = useToast();
@@ -39,7 +29,7 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
 
     const { width, height } = canvas;
 
-    const topLeft = { r: 0, g: 0, b: 0 }; 
+    const topLeft = { r: 0, g: 0, b: 0 };
     const topRight = { r: 255, g: 0, b: 0 };
     const bottomLeft = { r: 0, g: 255, b: 0 };
     const bottomRight = { r: 0, g: 0, b: 255 };
@@ -68,31 +58,6 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
     }
   }, []);
 
-  useEffect(() => {
-    if (!hexColor) return;
-
-    const runValidation = async () => {
-      setIsLoading(true);
-      setAiResponse(null);
-      try {
-        const dateToValidate = hexColor.substring(1);
-        const response = await validateDateWithGenAI({ date: dateToValidate });
-        setAiResponse(response);
-      } catch (error) {
-        console.error("AI validation failed:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Could not validate the date. Please try again.",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    runValidation();
-  }, [hexColor, toast]);
-
   const handleCanvasClick = (event: MouseEvent<HTMLCanvasElement>) => {
     if (currentYearDigits === 0) return; // a small guard to ensure client is ready
 
@@ -114,15 +79,23 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
     const mm = Math.round((g / 255) * 11) + 1;
     // Blue: 1-31 for day
     const dd = Math.round((b / 255) * 30) + 1;
-
+    
     const toHex = (c: number) => `0${c.toString(16)}`.slice(-2);
-    // Regenerate hex from clamped values to show the actual date color
-    const generatedHex = `#${toHex(Math.round(yy * 255/99))}${toHex(Math.round((mm - 1) * 255/11))}${toHex(Math.round((dd - 1) * 255/30))}`;
+    const clickedHex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+
+    if (mm < 1 || mm > 12) {
+      toast({
+        variant: "destructive",
+        title: "Invalid Date",
+        description: `The selected color maps to an invalid month.`,
+      });
+      return;
+    }
     
     const fullYear = yy <= currentYearDigits ? 2000 + yy : 1900 + yy;
-
+    
     const daysInMonth = new Date(fullYear, mm, 0).getDate();
-    if (dd > daysInMonth) {
+    if (dd < 1 || dd > daysInMonth) {
        toast({
         variant: "destructive",
         title: "Invalid Date",
@@ -133,7 +106,7 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
 
     const newDate = new Date(fullYear, mm - 1, dd);
     setSelectedDate(newDate);
-    setHexColor(generatedHex);
+    setHexColor(clickedHex);
   };
   
   const formattedDate = selectedDate
@@ -160,7 +133,7 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
           aria-label="Color gradient for date selection"
         />
 
-        <div className="text-center mt-6 min-h-[160px]">
+        <div className="text-center mt-6 min-h-[80px]">
           {hexColor ? (
             <div key={hexColor} className="animate-in fade-in-50 duration-500 flex justify-around items-start">
               <div className="space-y-2">
@@ -171,23 +144,7 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
                   <p className="text-lg font-mono tracking-widest font-bold text-foreground">
                     {hexColor}
                   </p>
-
                 </div>
-                  {isLoading && (
-                    <div className="flex items-center justify-center gap-2 mt-4 text-muted-foreground">
-                      <Loader2 className="animate-spin" />
-                      <span>Validating date...</span>
-                    </div>
-                  )}
-                  {aiResponse && (
-                    <Alert variant={aiResponse.isInPast ? "default" : "destructive"} className="mt-4 animate-in fade-in-50">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertTitle>
-                        {aiResponse.isInPast ? "This date is in the past" : "This date is in the future"}
-                      </AlertTitle>
-                      {aiResponse.reason && <AlertDescription>{aiResponse.reason}</AlertDescription>}
-                    </Alert>
-                  )}
               </div>
             </div>
           ) : (
