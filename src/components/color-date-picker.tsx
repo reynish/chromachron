@@ -89,9 +89,11 @@ export default function ColorDatePicker() {
 
     const yy = Math.floor((r / 255) * 100) % 100;
     const mm = Math.floor((g / 255) * 12) + 1;
-    const dd = Math.floor((b / 255) * 31) + 1;
 
     const fullYear = yy <= currentYearDigits ? 2000 + yy : 1900 + yy;
+
+    const daysInMonth = new Date(fullYear, mm, 0).getDate();
+    const dd = Math.floor((b / 255) * daysInMonth) + 1;
 
     const newDate = new Date(fullYear, mm - 1, dd);
     setSelectedDate(newDate);
