@@ -71,26 +71,26 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
   useEffect(() => {
     if (!hexColor) return;
 
-    const runValidation = async () => {
-      setIsLoading(true);
-      setAiResponse(null);
-      try {
-        const dateToValidate = hexColor.substring(1);
-        const response = await validateDateWithGenAI({ date: dateToValidate });
-        setAiResponse(response);
-      } catch (error) {
-        console.error("AI validation failed:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Could not validate the date. Please try again.",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  //   const runValidation = async () => {
+  //     setIsLoading(true);
+  //     setAiResponse(null);
+  //     try {
+  //       const dateToValidate = hexColor.substring(1);
+  //       const response = await validateDateWithGenAI({ date: dateToValidate });
+  //       setAiResponse(response);
+  //     } catch (error) {
+  //       console.error("AI validation failed:", error);
+  //       toast({
+  //         variant: "destructive",
+  //         title: "Error",
+  //         description: "Could not validate the date. Please try again.",
+  //       });
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
 
-    runValidation();
+  //   runValidation();
   }, [hexColor, toast]);
 
   const handleCanvasClick = (event: MouseEvent<HTMLCanvasElement>) => {
@@ -162,23 +162,15 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
           {hexColor ? (
             <div key={hexColor} className="animate-in fade-in-50 duration-500 flex justify-around items-start">
               <div className="space-y-2">
-                <h3 className="text-lg font-medium text-muted-foreground">Your Selected "Color"</h3>
                 <div className="flex items-center justify-center gap-4">
-                  <div
-                    className="w-12 h-12 rounded-md border-2"
-                    style={{ backgroundColor: hexColor }}
-                  />
-                  <p className="text-2xl font-mono tracking-widest font-bold text-foreground">
+                  <p className="text-lg font-bold text-primary-foreground bg-primary/90 rounded-lg p-3" style={{ backgroundColor: hexColor }}>
+                    {formattedDate}
+                  </p>
+                  <p className="text-lg font-mono tracking-widest font-bold text-foreground">
                     {hexColor}
                   </p>
-                </div>
-              </div>
 
-              <div className="space-y-2">
-                <h3 className="text-lg font-medium text-muted-foreground">Corresponds to the date:</h3>
-                <p className="text-3xl font-bold text-primary-foreground bg-primary/90 rounded-lg p-3">
-                  {formattedDate}
-                </p>
+                </div>
               </div>
             </div>
           ) : (
@@ -188,21 +180,8 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
           )}
         </div>
       </CardContent>
-      <CardFooter className="min-h-[90px] flex items-center justify-center p-6 bg-muted/50">
-        {isLoading && <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />}
-        {!isLoading && aiResponse?.isInPast && (
-          <Alert variant="destructive" className="w-full animate-in fade-in-50">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Past Date Warning!</AlertTitle>
-            <AlertDescription>{aiResponse.reason || "This date is in the past."}</AlertDescription>
-          </Alert>
-        )}
-        {!isLoading && aiResponse && !aiResponse.isInPast && (
-             <p className="text-sm text-muted-foreground">This date is in the future.</p>
-        )}
-        {!isLoading && !aiResponse && !hexColor && (
-            <p className="text-sm text-muted-foreground">Validation result will appear here.</p>
-        )}
+      <CardFooter className="flex items-center justify-center p-6 bg-muted/50">
+
       </CardFooter>
     </Card>
   );
