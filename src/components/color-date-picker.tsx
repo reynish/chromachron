@@ -105,6 +105,9 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
   useEffect(() => {
     if (hexColor.match(/^#[0-9]{6}$/)) {
       updateDateFromHex(hexColor);
+    } else {
+      setSelectedDate(null);
+      setAiReason("");
     }
   }, [currentYearDigits, hexColor]);
   
