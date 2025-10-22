@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { validateDate } from "@/ai/flows/date-validator-flow";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { isDateValid, parseHexToDate } from "@/lib/date-utils";
 
 type ColorDatePickerProps = {
   hexColor: string;
@@ -44,48 +45,29 @@ export default function ColorDatePicker({ hexColor, textColor, setHexColor }: Co
     setAiReason("");
     setCountdown(null);
     setIsLoading(false);
+    setSelectedDate(null);
 
     const updateDateFromHex = async (hex: string) => {
-      if (currentYearDigits === 0) return;
+      if (currentYearDigits === undefined) return;
 
-      const numericHex = hex.replace(/[^0-9a-fA-F]/g, '');
-      if (numericHex.length !== 6) {
-        setSelectedDate(null);
-        return;
-      }
-      
-      const yy = parseInt(numericHex.substring(0, 2), 16);
-      const mm = parseInt(numericHex.substring(2, 4), 16);
-      const dd = parseInt(numericHex.substring(4, 6), 16);
-      
-      if (isNaN(yy) || isNaN(mm) || isNaN(dd)) {
-        setSelectedDate(null);
-        return;
-      }
-      
-      if (mm < 1 || mm > 12) {
-        toast({
-          variant: "destructive",
-          title: "Invalid Date",
-          description: `The selected color maps to an invalid month: ${mm}.`,
-        });
-        setSelectedDate(null);
-        return;
-      }
-      
-      const fullYear = yy <= currentYearDigits ? 2000 + yy : 1900 + yy;
-      
-      const daysInMonth = new Date(fullYear, mm, 0).getDate();
-      if (dd < 1 || dd > daysInMonth) {
-        toast({
-          variant: "destructive",
-          title: "Invalid Date",
-          description: `The selected color maps to an invalid day for the chosen month: ${dd}.`,
-        });
-        setSelectedDate(null);
+      const parsed = parseHexToDate(hex);
+      if (!parsed) {
         return;
       }
 
+      const validationResult = isDateValid(parsed, currentYearDigits);
+
+      if (!validationResult) {
+        toast({
+          variant: 'destructive',
+          title: 'Invalid Date',
+          description: `The selected color ${hex} does not map to a valid date.`,
+        });
+        return;
+      }
+      
+      const { year: yy, month: mm, day: dd, fullYear } = validationResult;
+      
       const newDate = new Date(fullYear, mm - 1, dd);
       setSelectedDate(newDate);
 
@@ -109,7 +91,7 @@ export default function ColorDatePicker({ hexColor, textColor, setHexColor }: Co
               month: 'long',
               day: 'numeric',
             }),
-            hexColor: `#${numericHex}`,
+            hexColor: hex,
             year: yy,
             month: mm,
             day: dd,
@@ -124,11 +106,7 @@ export default function ColorDatePicker({ hexColor, textColor, setHexColor }: Co
       }, 5000); // 5 seconds
     };
 
-    if (hexColor.match(/^#[0-9a-fA-F]{6}$/)) {
-      updateDateFromHex(hexColor);
-    } else {
-      setSelectedDate(null);
-    }
+    updateDateFromHex(hexColor);
 
     // Cleanup function to clear timeouts and intervals
     return () => {
@@ -167,10 +145,10 @@ export default function ColorDatePicker({ hexColor, textColor, setHexColor }: Co
           {hexColor ? (
             <div key={hexColor} className="animate-in fade-in-50 duration-500 flex flex-col justify-around items-center gap-4">
               <div className="flex items-center justify-center gap-0" >
-                  <p className="text-lg text-white font-bold p-3" style={{ backgroundColor: hexColor, color: textColor }}>
+                  <p className="text-lg font-bold p-3" style={{ backgroundColor: hexColor, color: textColor }}>
                     {formattedDate}
                   </p>
-                  <p className="text-lg text-white font-mono tracking-widest font-bold p-3" style={{ backgroundColor: hexColor, color: textColor }}>
+                  <p className="text-lg font-mono tracking-widest font-bold p-3" style={{ backgroundColor: hexColor, color: textColor }}>
                     {hexColor}
                   </p>
               </div>
