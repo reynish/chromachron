@@ -3,30 +3,28 @@
 import { useState } from 'react';
 import ColorDatePicker from '@/components/color-date-picker';
 
+export function getContrastColor(hex: string) {
+  if (!hex) {
+    return 'hsl(var(--foreground))';
+  }
+
+  const hexValue = hex.substring(1); // remove #
+  if (hexValue.length !== 6) {
+    return '#FFFFFF'; // default to white for invalid hex
+  }
+  
+  const r = parseInt(hexValue.substring(0, 2), 16);
+  const g = parseInt(hexValue.substring(2, 4), 16);
+  const b = parseInt(hexValue.substring(4, 6), 16);
+
+  // Using the luminance formula
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+  return luminance > 0.5 ? '#000000' : '#FFFFFF';
+};
+
 export default function Home() {
-  const [hexColor, setHexColor] = useState<string>('#240101');
-
-  // Function to get contrasting text color (black or white)
-  const getContrastColor = (hex: string) => {
-    if (!hex) {
-      return 'hsl(var(--foreground))';
-    }
-
-    const hexValue = hex.substring(1); // remove #
-    if (hexValue.length !== 6) {
-      return '#FFFFFF'; // default to white for invalid hex
-    }
-    
-    const r = parseInt(hexValue.substring(0, 2), 16);
-    const g = parseInt(hexValue.substring(2, 4), 16);
-    const b = parseInt(hexValue.substring(4, 6), 16);
-
-    // Using the luminance formula
-    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-
-    return luminance > 0.5 ? '#000000' : '#FFFFFF';
-  };
-
+  const [hexColor, setHexColor] = useState<string>('#700101');
   const titleColor = getContrastColor(hexColor);
 
   return (
@@ -40,7 +38,7 @@ export default function Home() {
             ChromaChron
           </h1>
         </header>
-        <ColorDatePicker hexColor={hexColor} setHexColor={setHexColor} />
+        <ColorDatePicker hexColor={hexColor} textColor={titleColor} setHexColor={setHexColor} />
       </div>
     </main>
   );

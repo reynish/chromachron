@@ -9,10 +9,11 @@ import { Label } from "./ui/label";
 
 type ColorDatePickerProps = {
   hexColor: string;
+  textColor: string;
   setHexColor: (color: string) => void;
 };
 
-export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePickerProps) {
+export default function ColorDatePicker({ hexColor, textColor, setHexColor }: ColorDatePickerProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [aiReason, setAiReason] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -137,10 +138,10 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
           {hexColor ? (
             <div key={hexColor} className="animate-in fade-in-50 duration-500 flex flex-col justify-around items-center gap-4">
               <div className="flex items-center justify-center gap-0" >
-                  <p className="text-lg text-white font-bold p-3" style={{ backgroundColor: hexColor }}>
+                  <p className="text-lg text-white font-bold p-3" style={{ backgroundColor: hexColor, color: textColor }}>
                     {formattedDate}
                   </p>
-                  <p className="text-lg text-white font-mono tracking-widest font-bold p-3" style={{ backgroundColor: hexColor }}>
+                  <p className="text-lg text-white font-mono tracking-widest font-bold p-3" style={{ backgroundColor: hexColor, color: textColor }}>
                     {hexColor}
                   </p>
               </div>
