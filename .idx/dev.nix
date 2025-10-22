@@ -21,7 +21,8 @@
   idx = {
     # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
     extensions = [
-      # "vscodevim.vim"
+      "orta.vscode-jest"
+      "ryanluker.vscode-coverage-gutters"
     ];
     workspace = {
       onCreate = {
