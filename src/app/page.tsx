@@ -4,7 +4,7 @@ import { useState } from 'react';
 import ColorDatePicker from '@/components/color-date-picker';
 
 export default function Home() {
-  const [hexColor, setHexColor] = useState<string>('');
+  const [hexColor, setHexColor] = useState<string>('#240101');
 
   return (
     <main 

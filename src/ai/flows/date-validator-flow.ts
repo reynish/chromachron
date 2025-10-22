@@ -13,9 +13,9 @@ import {z} from 'genkit';
 const ValidateDateInputSchema = z.object({
   date: z.string().describe('The date to validate, in a readable format like "January 1, 2024".'),
   hexColor: z.string().describe('The hex color code that was selected.'),
-  year: z.number().describe('The two-digit year component derived from the red channel.'),
-  month: z.number().describe('The month component derived from the green channel.'),
-  day: z.number().describe('The day component derived from the blue channel.'),
+  year: z.number().describe('The two-digit year component derived from the first two hex characters.'),
+  month: z.number().describe('The month component derived from the middle two hex characters.'),
+  day: z.number().describe('The day component derived from the last two hex characters.'),
 });
 export type ValidateDateInput = z.infer<typeof ValidateDateInputSchema>;
 
@@ -32,14 +32,14 @@ const prompt = ai.definePrompt({
   name: 'dateValidatorPrompt',
   input: {schema: ValidateDateInputSchema},
   output: {schema: ValidateDateOutputSchema},
-  prompt: `You are a helpful code assistant. Given a hex color, explain how it converts to the date '{{{date}}}'.
+  prompt: `You are a helpful code assistant. Given a hex color, explain how it converts to the date '{{{date}}}' using the #YYMMDD format.
 
 The hex color is {{{hexColor}}}.
-- The red component converts to the year '{{year}}'.
-- The green component converts to the month '{{month}}'.
-- The blue component converts to the day '{{day}}'.
+- The first two characters ('{{hexColor.[1]}}{{hexColor.[2]}}') represent the year, converting to '{{year}}'.
+- The middle two characters ('{{hexColor.[3]}}{{hexColor.[4]}}') represent the month, converting to '{{month}}'.
+- The last two characters ('{{hexColor.[5]}}{{hexColor.[6]}}') represent the day, converting to '{{day}}'.
 
-Provide a brief, one-sentence, creative explanation for why this is a valid date based on the conversion. Be creative and confirm the date is valid.`,
+Provide a brief, one-sentence, creative explanation for why this is a valid date based on this #YYMMDD conversion. Confirm the date is valid.`,
 });
 
 const dateValidatorFlow = ai.defineFlow(
