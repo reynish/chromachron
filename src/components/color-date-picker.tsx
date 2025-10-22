@@ -3,7 +3,6 @@
 import { useState, useEffect, type ChangeEvent, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { validateDate } from "@/ai/flows/date-validator-flow";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { isDateValid, parseHexToDate } from "@/lib/date-utils";
@@ -70,40 +69,6 @@ export default function ColorDatePicker({ hexColor, textColor, setHexColor }: Co
       
       const newDate = new Date(fullYear, mm - 1, dd);
       setSelectedDate(newDate);
-
-      // Start countdown
-      setCountdown(5);
-      countdownInterval.current = setInterval(() => {
-        setCountdown(prev => (prev !== null && prev > 1) ? prev - 1 : 0);
-      }, 1000);
-
-      // Set a new timeout to call the AI
-      debounceTimeout.current = setTimeout(async () => {
-        if (countdownInterval.current) {
-          clearInterval(countdownInterval.current);
-        }
-        setCountdown(null);
-        setIsLoading(true);
-        try {
-          const result = await validateDate({
-            date: newDate.toLocaleDateString(undefined, {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            }),
-            hexColor: hex,
-            year: yy,
-            month: mm,
-            day: dd,
-          });
-          setAiReason(result.haiku);
-        } catch (error) {
-          console.error("AI validation error:", error);
-          setAiReason("Could not get a reason from our AI historian.");
-        } finally {
-          setIsLoading(false);
-        }
-      }, 5000); // 5 seconds
     };
 
     updateDateFromHex(hexColor);
@@ -151,15 +116,6 @@ export default function ColorDatePicker({ hexColor, textColor, setHexColor }: Co
                   <p className="text-lg font-mono tracking-widest font-bold p-3" style={{ backgroundColor: hexColor, color: textColor }}>
                     {hexColor}
                   </p>
-              </div>
-              <div className="text-sm text-muted-foreground italic w-full max-w-sm min-h-[40px]">
-                {countdown !== null ? (
-                   <p>Our AI historian will think in {countdown}s...</p>
-                ) : isLoading ? (
-                  <p>Our AI historian is thinking...</p>
-                ) : (
-                  aiReason && <p>"{aiReason}"</p>
-                )}
               </div>
             </div>
           ) : (
