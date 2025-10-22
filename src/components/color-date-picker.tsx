@@ -117,7 +117,7 @@ export default function ColorDatePicker({ hexColor, setHexColor }: ColorDatePick
         month: 'long',
         day: 'numeric',
       })
-    : "Select a color with only numbers (0-9).";
+    : "#YYMMDD";
 
   return (
     <Card className="overflow-hidden shadow-xl">
