@@ -20,7 +20,7 @@ const ValidateDateInputSchema = z.object({
 export type ValidateDateInput = z.infer<typeof ValidateDateInputSchema>;
 
 const ValidateDateOutputSchema = z.object({
-  reason: z.string().describe('A creative and brief explanation of why the provided date is conceptually valid based on its hex to number conversion.'),
+  haiku: z.string().describe('A haiku about the color and time of year.'),
 });
 export type ValidateDateOutput = z.infer<typeof ValidateDateOutputSchema>;
 
@@ -32,14 +32,12 @@ const prompt = ai.definePrompt({
   name: 'dateValidatorPrompt',
   input: {schema: ValidateDateInputSchema},
   output: {schema: ValidateDateOutputSchema},
-  prompt: `You are a helpful code assistant. Given a hex color, explain how it converts to the date '{{{date}}}' using the #YYMMDD format.
+  prompt: `You are a helpful AI assistant who is an expert in writing haikus.
 
-The hex color is {{{hexColor}}}.
-- The first two characters ('{{hexColor.[1]}}{{hexColor.[2]}}') represent the year, converting to '{{year}}'.
-- The middle two characters ('{{hexColor.[3]}}{{hexColor.[4]}}') represent the month, converting to '{{month}}'.
-- The last two characters ('{{hexColor.[5]}}{{hexColor.[6]}}') represent the day, converting to '{{day}}'.
+The user has provided a date: {{{date}}}.
+The user has also provided a hex color: {{{hexColor}}}.
 
-Provide a brief, one-sentence, creative explanation for why this is a valid date based on this #YYMMDD conversion. Confirm the date is valid.`,
+Write a haiku (5-7-5 syllables) that describes the color and references the time of year for the given date.`,
 });
 
 const dateValidatorFlow = ai.defineFlow(
