@@ -90,7 +90,7 @@ export default function ColorDatePicker({ hexColor, textColor, setHexColor }: Co
       setSelectedDate(newDate);
 
       // Start countdown
-      setCountdown(20);
+      setCountdown(5);
       countdownInterval.current = setInterval(() => {
         setCountdown(prev => (prev !== null && prev > 1) ? prev - 1 : 0);
       }, 1000);
@@ -114,14 +114,14 @@ export default function ColorDatePicker({ hexColor, textColor, setHexColor }: Co
             month: mm,
             day: dd,
           });
-          setAiReason(result.reason);
+          setAiReason(result.haiku);
         } catch (error) {
           console.error("AI validation error:", error);
           setAiReason("Could not get a reason from our AI historian.");
         } finally {
           setIsLoading(false);
         }
-      }, 20000); // 20 seconds
+      }, 5000); // 5 seconds
     };
 
     if (hexColor.match(/^#[0-9a-fA-F]{6}$/)) {
