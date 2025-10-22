@@ -1,10 +1,29 @@
 import type {Metadata} from 'next';
 import './globals.css';
+import preview from '../media/preview.png';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: 'ChromaChron',
   description: 'The worst date picker imaginable.',
+  openGraph: {
+    title: 'ChromaChron',
+    description: 'The worst date picker imaginable.',
+    images: [
+      {
+        url: '/preview.png',
+        width: 1200,
+        height: 630,
+        alt: 'ChromaChron',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ChromaChron',
+    description: 'The worst date picker imaginable.',
+    images: ['/preview.png'],
+  },
 };
 
 export default function RootLayout({
